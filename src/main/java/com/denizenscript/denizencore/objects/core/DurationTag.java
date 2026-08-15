@@ -33,7 +33,7 @@ public class DurationTag implements ObjectTag {
     // Durations are a unified and convenient way to get a 'unit of time' throughout Denizen.
     // Many commands and features that require a duration can be satisfied by specifying a number and unit of time, especially command arguments that are prefixed 'duration:', etc.
     // The unit of time can be specified by using one of the following:
-    // t=ticks (0.05 seconds), s=seconds, m=minutes (60 seconds), h=hours (60 minutes), d=days (24 hours), w=weeks (7 days), y=years (365 days).
+    // ms=milliseconds (0.001 seconds), t=ticks (0.05 seconds), s=seconds, m=minutes (60 seconds), h=hours (60 minutes), d=days (24 hours), w=weeks (7 days), y=years (365 days).
     // Not using a unit will imply seconds.
     // Examples: 10s, 50m, 1d, 20.
     //
@@ -93,7 +93,13 @@ public class DurationTag implements ObjectTag {
                 }
             }
         }
-        String numericString = Character.isDigit(string.charAt(string.length() - 1)) ? string : string.substring(0, string.length() - 1);
+        String numericString = string;
+        if (string.endsWith("ms")) {
+            numericString = string.substring(0, string.length() - 2);
+        }
+        else if (!Character.isDigit(string.charAt(string.length() - 1))) {
+            numericString = string.substring(0, string.length() - 1);
+        }
         // Standard DurationTag. Check the type and create new DurationTag object accordingly.
         try {
             double numVal = Double.parseDouble(numericString);
@@ -118,6 +124,9 @@ public class DurationTag implements ObjectTag {
             }
             else if (string.endsWith("t")) {
                 return new DurationTag(numVal * 0.05);
+            }
+            else if (string.endsWith("ms")) {
+                return new DurationTag(numVal / 1000.0);
             }
             else if (numericString.equals(string)) {
                 // seconds
