@@ -93,13 +93,7 @@ public class DurationTag implements ObjectTag {
                 }
             }
         }
-        String numericString = string;
-        if (string.endsWith("ms")) {
-            numericString = string.substring(0, string.length() - 2);
-        }
-        else if (!Character.isDigit(string.charAt(string.length() - 1))) {
-            numericString = string.substring(0, string.length() - 1);
-        }
+        String numericString = Character.isDigit(string.charAt(string.length() - 1)) ? string : string.substring(0, string.endsWith("ms") ? string.length() - 2 : string.length() - 1);
         // Standard DurationTag. Check the type and create new DurationTag object accordingly.
         try {
             double numVal = Double.parseDouble(numericString);
@@ -118,15 +112,15 @@ public class DurationTag implements ObjectTag {
             else if (string.endsWith("m")) {
                 return new DurationTag(numVal * 60);
             }
+            else if (string.endsWith("ms")) {
+                return new DurationTag(numVal * 0.001);
+            }
             else if (string.endsWith("s")) {
                 // seconds
                 return new DurationTag(numVal);
             }
             else if (string.endsWith("t")) {
                 return new DurationTag(numVal * 0.05);
-            }
-            else if (string.endsWith("ms")) {
-                return new DurationTag(numVal / 1000.0);
             }
             else if (numericString.equals(string)) {
                 // seconds
