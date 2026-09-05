@@ -420,7 +420,7 @@ public class DurationTag implements ObjectTag {
         // Returns this duration minus another.
         // -->
         tagProcessor.registerStaticTag(DurationTag.class, DurationTag.class, "sub", (attribute, object, secondVal) -> {
-            return new DurationTag(object.seconds - secondVal.seconds);
+            return new DurationTag(java.math.BigDecimal.valueOf(object.seconds).subtract(java.math.BigDecimal.valueOf(secondVal.seconds)).doubleValue());
         });
 
         // <--[tag]
@@ -430,7 +430,7 @@ public class DurationTag implements ObjectTag {
         // Returns this duration plus another.
         // -->
         tagProcessor.registerStaticTag(DurationTag.class, DurationTag.class, "add", (attribute, object, secondVal) -> {
-            return new DurationTag(object.seconds + secondVal.seconds);
+            return new DurationTag(java.math.BigDecimal.valueOf(object.seconds).add(java.math.BigDecimal.valueOf(secondVal.seconds)).doubleValue());
         });
 
         // <--[tag]
