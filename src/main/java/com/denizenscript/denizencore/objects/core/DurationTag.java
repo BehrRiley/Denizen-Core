@@ -93,7 +93,8 @@ public class DurationTag implements ObjectTag {
                 }
             }
         }
-        String numericString = Character.isDigit(string.charAt(string.length() - 1)) ? string : string.substring(0, string.endsWith("ms") ? string.length() - 2 : string.length() - 1);
+        int len = string.length();
+        String numericString = Character.isDigit(string.charAt(len - 1)) ? string : string.substring(0, len - (string.endsWith("ms") ? 2 : 1));
         // Standard DurationTag. Check the type and create new DurationTag object accordingly.
         try {
             double numVal = Double.parseDouble(numericString);
@@ -198,6 +199,9 @@ public class DurationTag implements ObjectTag {
      * @return the number of ticks.
      */
     public long getTicks() {
+        if (seconds < 0.05 && seconds > 0) {
+            return 1;
+        }
         return (long) (seconds * 20);
     }
 
@@ -208,6 +212,9 @@ public class DurationTag implements ObjectTag {
      * @return the number of ticks.
      */
     public int getTicksAsInt() {
+        if (seconds < 0.05 && seconds > 0) {
+            return 1;
+        }
         return (int) (seconds * 20);
     }
 
@@ -413,7 +420,7 @@ public class DurationTag implements ObjectTag {
         // Returns this duration minus another.
         // -->
         tagProcessor.registerStaticTag(DurationTag.class, DurationTag.class, "sub", (attribute, object, secondVal) -> {
-            return new DurationTag(object.getTicks() - secondVal.getTicks());
+            return new DurationTag(object.seconds - secondVal.seconds);
         });
 
         // <--[tag]
@@ -423,7 +430,7 @@ public class DurationTag implements ObjectTag {
         // Returns this duration plus another.
         // -->
         tagProcessor.registerStaticTag(DurationTag.class, DurationTag.class, "add", (attribute, object, secondVal) -> {
-            return new DurationTag(object.getTicks() + secondVal.getTicks());
+            return new DurationTag(object.seconds + secondVal.seconds);
         });
 
         // <--[tag]
@@ -553,9 +560,17 @@ public class DurationTag implements ObjectTag {
         if (seconds > 0 && minutes < 10 && hours == 0 && days == 0 && years == 0) {
             timeString += seconds + (words ? " second" + autoS(seconds) :  "s ");
         }
+        long millis = Math.round(secondsCopy * 1000) % 1000;
+        if (millis > 0 && (millis % 50 != 0) && minutes < 10 && hours == 0 && days == 0 && years == 0) {
+            timeString += millis + (words ? " millisecond" + autoS(millis) : "ms ");
+        }
         if (timeString.isEmpty()) {
             if (secondsCopy == 0) {
                 timeString = "forever";
+            }
+            else if (Math.round(secondsCopy * 1000) % 50 != 0) {
+                long ms = Math.round(secondsCopy * 1000);
+                timeString = ms + (words ? " millisecond" + autoS(ms) : "ms");
             }
             else {
                 timeString = ((double) ((long) (secondsCopy * 100)) / 100d) + "s";

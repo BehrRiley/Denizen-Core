@@ -4,6 +4,9 @@ public class RepeatingSchedulable extends Schedulable {
 
     public RepeatingSchedulable(Runnable runnable, float fireRate) {
         run = runnable;
+        if (fireRate > 0 && fireRate < 0.05f) {
+            fireRate = 0.05f;
+        }
         fireEverySeconds = fireRate;
         secondsLeft = fireRate;
     }
